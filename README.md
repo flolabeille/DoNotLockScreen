@@ -1,20 +1,20 @@
 # DoNotLockScreen
 
-Utilitaire Windows qui empêche le PC de se verrouiller automatiquement en simulant l'appui sur la touche **Print Screen** toutes les 2 minutes, via une interface graphique WinForms.
+Utilitaire Windows qui empeche le PC de se verrouiller automatiquement en simulant l'appui sur la touche **Print Screen** toutes les 2 minutes, via une interface graphique WinForms moderne avec themes clair et sombre.
 
 ---
 
 ## Pourquoi ce projet ?
 
-Windows verrouille l'écran après une courte période d'inactivité. Plutôt que de toucher aux paramètres système (parfois bloqués par une politique d'entreprise), ce script simule une touche neutre (`Print Screen`) à intervalle régulier pour signaler de l'activité sans interférer avec le travail en cours.
+Windows verrouille l'ecran apres une courte periode d'inactivite. Plutot que de toucher aux parametres systeme (parfois bloques par une politique d'entreprise), ce script simule une touche neutre (`Print Screen`) a intervalle regulier pour signaler de l'activite sans interferer avec le travail en cours.
 
 ---
 
-## Prérequis
+## Prerequis
 
 - Windows 10 / 11
-- PowerShell 5.1 ou supérieur (inclus nativement)
-- Aucune installation supplémentaire requise
+- PowerShell 5.1 ou superieur (inclus nativement)
+- Aucune installation supplementaire requise
 
 ---
 
@@ -24,50 +24,54 @@ Windows verrouille l'écran après une courte période d'inactivité. Plutôt qu
 powershell -ExecutionPolicy Bypass -File .\DoNotLockScreen.ps1
 ```
 
-Ou depuis PowerShell :
+Ou depuis PowerShell directement :
 
 ```powershell
 .\DoNotLockScreen.ps1
 ```
 
-> Si l'exécution est bloquée, utiliser `-ExecutionPolicy Bypass` comme indiqué ci-dessus.
+> Si l'execution est bloquee, utiliser `-ExecutionPolicy Bypass` comme indique ci-dessus.
 
 ---
 
 ## Interface
 
 ```
-┌─────────────────────────────────────────────┐
-│  DoNotLockScreen                            │
-│  * Inactive                                 │
-│                                             │
-│  [ Start ]  [ Reset ]  [ Quit ]             │
-│                                             │
-│  Iterations  │  Uptime    │  Next press     │
-│  0           │  --:--:--  │  --:--          │
-│                                             │
-│  Log                   │  Top Sessions      │
-│  ─────────────────     │  ──────────────    │
-│                        │                   │
-└─────────────────────────────────────────────┘
++--------------------------------------------------+
+|  [icone] DoNotLockScreen                         |
+|  * Inactive                                      |
+|                                                  |
+|  [ Start ] [ Reset ] [ Mode clair ] [ Quit ]     |
+|                                                  |
+|  Iterations  |  Uptime      |  Next press        |
+|  0           |  --:--:--    |  --:--             |
+|                                                  |
+|  Log                  |  Top Sessions            |
+|  ------------------   |  --------------------   |
+|                       |                         |
++--------------------------------------------------+
 ```
 
-La fenêtre est entièrement redimensionnable. Le log et le classement s'adaptent automatiquement.
+La fenetre est entierement redimensionnable. Tous les panneaux, le log et le classement s'adaptent automatiquement a la taille de la fenetre.
 
 ---
 
-## Fonctionnalites
+## Icone
 
-### Bouton Start / Stop
+Une icone personnalisee (cadenas ouvert sur fond violet) est generee automatiquement au lancement et apparait dans la barre de titre et la barre des taches. Aucun fichier externe n'est necessaire : elle est dessine en code via GDI+.
 
-- **Start** : lance la session. Un premier appui sur `Print Screen` est envoyé immédiatement, puis toutes les 2 minutes.
-- **Stop** : arrête la session en cours. Les statistiques sont sauvegardées dans le classement.
+---
 
-Le bouton change de couleur selon l'état :
-- Vert + texte `Start` quand inactif
-- Orange + texte `Stop` quand actif
+## Boutons
 
-### Bouton Reset
+### Start / Stop
+
+- **Start** (vert) : lance la session. Un premier appui sur `Print Screen` est envoye immediatement, puis toutes les 2 minutes.
+- **Stop** (orange) : arrete la session. Les statistiques de la session terminee sont sauvegardees dans le classement.
+
+Le bouton change de couleur et de texte automatiquement selon l'etat.
+
+### Reset
 
 Sauvegarde la session courante dans le classement (si au moins 1 appui a eu lieu), puis remet a zero :
 - Le compteur d'iterations
@@ -75,11 +79,15 @@ Sauvegarde la session courante dans le classement (si au moins 1 appui a eu lieu
 - Le journal (log)
 - Le compte a rebours
 
-Si la session est active au moment du reset, elle continue de tourner avec un compteur repart de zero.
+Si la session est active au moment du reset, elle continue de tourner avec des compteurs a zero.
 
-### Bouton Quit
+### Mode clair / Mode sombre
 
-Arrête proprement la session en cours (et la sauvegarde dans le classement), puis ferme l'application.
+Bascule entre le theme sombre (fond noir, texte clair) et le theme clair (fond blanc casse, texte sombre). Le journal et le classement sont re-rendu automatiquement pour rester lisibles dans les deux themes. Le theme par defaut est **sombre**.
+
+### Quit
+
+Arrete proprement la session en cours (et la sauvegarde dans le classement si applicable), puis ferme l'application.
 
 ---
 
@@ -89,7 +97,7 @@ Arrête proprement la session en cours (et la sauvegarde dans le classement), pu
 |---|---|
 | **Iterations** | Nombre de fois que `Print Screen` a ete envoye depuis le debut de la session |
 | **Uptime** | Duree ecoulee depuis le debut de la session active (format HH:MM:SS) |
-| **Next press** | Compte a rebours avant le prochain envoi de `Print Screen` (format M:SS) |
+| **Next press** | Compte a rebours avant le prochain envoi (format M:SS) |
 
 Quand aucune session n'est active, les stats affichent `--:--:--` et `--:--`.
 
@@ -103,7 +111,9 @@ Chaque evenement est horodate et affiche en couleur :
 |---|---|
 | Vert | Appui sur `Print Screen` reussi |
 | Rouge | Erreur lors de l'envoi de la touche |
-| Gris | Message systeme (debut/arret/reset de session) |
+| Gris | Message systeme (debut / arret / reset de session) |
+
+Le journal est bufferise en memoire pour etre correctement re-colorie lors d'un changement de theme.
 
 ---
 
@@ -125,6 +135,18 @@ La session numero 1 (la plus longue) est affichee en or.
 
 ---
 
+## Themes
+
+| Element | Theme sombre | Theme clair |
+|---|---|---|
+| Fond principal | Noir (#0F0F0F) | Blanc casse (#F5F5FA) |
+| Panneaux | Gris tres sombre (#1C1C1E) | Gris lavande clair (#E1E1EE) |
+| Texte | Blanc casse (#E5E5E7) | Noir (#14141E) |
+| Texte discret | Gris moyen (#717177) | Gris moyen (#696978) |
+| Accent | Violet (#A78BFA) | Violet (#A78BFA) |
+
+---
+
 ## Comportement technique
 
 - La touche simulee est `{PRTSC}` (Print Screen), via `WScript.Shell.SendKeys`.
@@ -134,3 +156,4 @@ La session numero 1 (la plus longue) est affichee en or.
   - **Timer principal** (120s) : declenche l'appui sur la touche
   - **Timer UI** (1s) : met a jour l'uptime et le compte a rebours
 - Tout s'execute sur le thread UI (pas de multithreading), ce qui garantit la stabilite.
+- L'icone est generee dynamiquement via GDI+ : aucun fichier `.ico` externe n'est requis.
