@@ -25,27 +25,27 @@ $form.FormBorderStyle = "FixedSingle"
 $form.MaximizeBox     = $false
 $form.BackColor       = $bgColor
 
-# --- Titre ---
-$lblTitle = New-Object System.Windows.Forms.Label
-$lblTitle.Text     = "DoNotLockScreen"
-$lblTitle.Font     = New-Object System.Drawing.Font("Segoe UI", 13, [System.Drawing.FontStyle]::Bold)
+# --- Header ---
+$lblTitle           = New-Object System.Windows.Forms.Label
+$lblTitle.Text      = "DoNotLockScreen"
+$lblTitle.Font      = New-Object System.Drawing.Font("Segoe UI", 13, [System.Drawing.FontStyle]::Bold)
 $lblTitle.ForeColor = $accent
-$lblTitle.Location = New-Object System.Drawing.Point(16, 14)
-$lblTitle.AutoSize = $true
+$lblTitle.Location  = New-Object System.Drawing.Point(16, 14)
+$lblTitle.AutoSize  = $true
 $form.Controls.Add($lblTitle)
 
-$lblStatus = New-Object System.Windows.Forms.Label
-$lblStatus.Text     = "● Actif"
-$lblStatus.Font     = New-Object System.Drawing.Font("Segoe UI", 9)
+$lblStatus           = New-Object System.Windows.Forms.Label
+$lblStatus.Text      = "* Active"
+$lblStatus.Font      = New-Object System.Drawing.Font("Segoe UI", 9)
 $lblStatus.ForeColor = $green
-$lblStatus.Location = New-Object System.Drawing.Point(16, 42)
-$lblStatus.AutoSize = $true
+$lblStatus.Location  = New-Object System.Drawing.Point(16, 42)
+$lblStatus.AutoSize  = $true
 $form.Controls.Add($lblStatus)
 
-# --- Panneau stats ---
-$statsPanel = New-Object System.Windows.Forms.Panel
-$statsPanel.Location  = New-Object System.Drawing.Point(12, 68)
-$statsPanel.Size      = New-Object System.Drawing.Size(436, 78)
+# --- Stats panel ---
+$statsPanel          = New-Object System.Windows.Forms.Panel
+$statsPanel.Location = New-Object System.Drawing.Point(12, 68)
+$statsPanel.Size     = New-Object System.Drawing.Size(436, 78)
 $statsPanel.BackColor = $panelColor
 $form.Controls.Add($statsPanel)
 
@@ -69,28 +69,28 @@ function New-StatBlock($parent, $x, $labelText, $initialValue) {
     return $val
 }
 
-$lblIterCount = New-StatBlock $statsPanel 16  "Itérations" "0"
-$lblUptime    = New-StatBlock $statsPanel 155 "Durée"      "00:00:00"
-$lblCountdown = New-StatBlock $statsPanel 310 "Prochain"   "2:00"
+$lblIterCount = New-StatBlock $statsPanel 16  "Iterations" "0"
+$lblUptime    = New-StatBlock $statsPanel 155 "Uptime"     "00:00:00"
+$lblCountdown = New-StatBlock $statsPanel 310 "Next press" "2:00"
 
-# --- Journal ---
-$lblLogHeader          = New-Object System.Windows.Forms.Label
-$lblLogHeader.Text     = "Journal"
-$lblLogHeader.Font     = New-Object System.Drawing.Font("Segoe UI", 8)
+# --- Log area ---
+$lblLogHeader           = New-Object System.Windows.Forms.Label
+$lblLogHeader.Text      = "Log"
+$lblLogHeader.Font      = New-Object System.Drawing.Font("Segoe UI", 8)
 $lblLogHeader.ForeColor = $muted
-$lblLogHeader.Location = New-Object System.Drawing.Point(16, 160)
-$lblLogHeader.AutoSize = $true
+$lblLogHeader.Location  = New-Object System.Drawing.Point(16, 160)
+$lblLogHeader.AutoSize  = $true
 $form.Controls.Add($lblLogHeader)
 
-$rtb              = New-Object System.Windows.Forms.RichTextBox
-$rtb.Location     = New-Object System.Drawing.Point(12, 178)
-$rtb.Size         = New-Object System.Drawing.Size(436, 188)
-$rtb.BackColor    = $panelColor
-$rtb.ForeColor    = $textColor
-$rtb.Font         = New-Object System.Drawing.Font("Consolas", 9)
-$rtb.ReadOnly     = $true
-$rtb.BorderStyle  = "None"
-$rtb.ScrollBars   = "Vertical"
+$rtb             = New-Object System.Windows.Forms.RichTextBox
+$rtb.Location    = New-Object System.Drawing.Point(12, 178)
+$rtb.Size        = New-Object System.Drawing.Size(436, 188)
+$rtb.BackColor   = $panelColor
+$rtb.ForeColor   = $textColor
+$rtb.Font        = New-Object System.Drawing.Font("Consolas", 9)
+$rtb.ReadOnly    = $true
+$rtb.BorderStyle = "None"
+$rtb.ScrollBars  = "Vertical"
 $form.Controls.Add($rtb)
 
 function Write-Log($text, $color) {
@@ -101,7 +101,7 @@ function Write-Log($text, $color) {
     $rtb.ScrollToCaret()
 }
 
-# --- Action principale ---
+# --- Main action ---
 function Invoke-Press {
     $script:nbre++
     $date = Get-Date -Format "dd-MM-yyyy HH:mm:ss"
@@ -110,18 +110,18 @@ function Invoke-Press {
         Start-Sleep -Milliseconds 100
         Write-Log "[$($script:nbre)] $date" $green
     } catch {
-        Write-Log "[$($script:nbre)] $date  —  Erreur" $red
+        Write-Log "[$($script:nbre)] $date  --  Error" $red
     }
     $lblIterCount.Text    = "$($script:nbre)"
     $script:nextPressTime = (Get-Date).AddSeconds(120)
 }
 
-# --- Timer principal : toutes les 2 minutes ---
+# --- Main timer: every 2 minutes ---
 $mainTimer          = New-Object System.Windows.Forms.Timer
 $mainTimer.Interval = 120000
 $mainTimer.Add_Tick({ Invoke-Press })
 
-# --- Timer UI : chaque seconde ---
+# --- UI timer: every second ---
 $uiTimer          = New-Object System.Windows.Forms.Timer
 $uiTimer.Interval = 1000
 $uiTimer.Add_Tick({
@@ -139,9 +139,10 @@ $uiTimer.Add_Tick({
     }
 })
 
-# --- Démarrage ---
+# --- Start ---
 $form.Add_Shown({
-    Write-Log "Session démarrée le $(Get-Date -Format 'dd-MM-yyyy HH:mm:ss')" $muted
+    $started = Get-Date -Format "dd-MM-yyyy HH:mm:ss"
+    Write-Log "Session started on $started" $muted
     Invoke-Press
     $mainTimer.Start()
     $uiTimer.Start()
